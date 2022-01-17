@@ -1,0 +1,86 @@
+---
+title: "Using ggplot2 to Simulate Phyllotaxis"
+author: "Ross Woleben"
+date: "1/15/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.width = 4, fig.height = 4)
+library(ggplot2)
+```
+
+Create function to make fully customizable plot output
+```{r}
+plot_image <- function(angle = 1, points = 2000, ...){
+  t <- (1:points)*angle
+  x <- sin(t)
+  y <- cos(t)
+  df <- data.frame(t, x, y)
+  
+  p <- ggplot(df, aes(x*t, y*t))
+  #Use theme() to remove extra plot details
+  p + geom_point(...)+
+  theme(legend.position="none",
+        text = element_blank(),
+        rect = element_blank(),
+        line = element_blank())
+}
+
+plot_image(size = 100, alpha = .1, shape = 1, color = 'darkgreen')
+```
+
+Create interesting pattern(s) using golden ratio
+```{r}
+angle <- pi - (3 - sqrt(5))
+points <- 100
+
+t <- (1:points)*angle
+x <- sin(t)
+y <- cos(t)
+df <- data.frame(t, x, y)
+
+p <- ggplot(df, aes(x*t, y*t))
+#Size of point corresponds to position in the sequence
+p +  geom_point(aes(size = t), alpha = .5, shape = 8, color = 'azure3') + 
+  theme(legend.position = 'none',
+        panel.background = element_rect(fill = 'black'),
+        text = element_blank(),
+        rect = element_blank(),
+        line = element_blank())
+```
+
+Create a sunflower using rose curves
+```{r}
+#Define angle (I found 2.4 worked well to form a circular shape)
+angle = 2.4
+#Define vector that helps form inside of sunflower
+t = seq(1:2500) * angle
+#Define vector of thetas to create petals of sunflower
+theta = seq(0,4*pi, length.out = 2500)
+
+#Define Cartesian coordinates of inner flower
+x = sin(t)
+y = cos(t)
+
+#Cartesian coordinates of flower petals
+#Inner petal
+#r = 8750 * cos((3.5)*theta)
+x2 = 8750 * cos((3.5)*theta) * cos(theta)
+y2 = 8750 * cos((3.5)*theta) * sin(theta)
+#Outer petal
+#r = 9250 * cos((5.5)*theta)
+x3 = 9250 * cos((5.5)*theta) * cos(theta)
+y3 = 9250 * cos((5.5)*theta) * sin(theta)
+
+df = data.frame(t,theta,x,y,x2,y2,x3,y3)
+
+#use theme() to remove legend, grid, axis
+#use geom_polygon to fill color of petals
+p <- ggplot(df, aes(x*t, y*t)) 
+p + geom_point(aes(x3,y3), size = .5) + geom_polygon(aes(x3,y3), fill = 'yellow') + 
+  geom_point(aes(x2,y2), size = .5) + geom_polygon(aes(x2,y2),fill = 'yellow') + 
+  geom_point(shape = 23 , fill = 'tan4', alpha = .92, size =4) + 
+  theme(legend.position = 'none', rect = element_blank(), text = element_blank(), line = element_blank())
+
+```
